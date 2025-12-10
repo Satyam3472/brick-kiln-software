@@ -1,0 +1,111 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  STAFF
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model User {
+  id        String     @id @default(cuid())
+  name      String
+  email     String     @unique
+  phone     String     @unique
+  password  String
+  role      Role       @default(STAFF)
+  status    UserStatus @default(ACTIVE)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("users")
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  address   String
+  phone     String?
+  sales     Sale[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("customers")
+}
+
+enum BrickUnit {
+  BRICK
+  TRACTOR
+}
+
+model BrickType {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  rateDefault Float?
+  unit        BrickUnit @default(BRICK)
+  sales       Sale[]
+  createdAt   DateTime  @default(now())
+  
+  @@map("brick_types")
+}
+
+model Driver {
+  id            String               @id @default(cuid())
+  name          String
+  phone         String?
+  vehicleNumber String?
+  monthlySalary Float?
+  ledger        DriverSalaryLedger[]
+  sales         Sale[]
+  createdAt     DateTime             @default(now())
+  
+  @@map("drivers")
+}
+
+model DriverSalaryLedger {
+  id        String   @id @default(cuid())
+  driverId  String
+  driver    Driver   @relation(fields: [driverId], references: [id])
+  date      DateTime
+  type      String   // "salary_entry" | "advance" | "payment" | "bonus" | "penalty"
+  amount    Float
+  note      String?
+  createdAt DateTime @default(now())
+  
+  @@map("driver_salary_ledger")
+}
+
+model Sale {
+  id          String    @id @default(cuid())
+  date        DateTime
+  customerId  String
+  customer    Customer  @relation(fields: [customerId], references: [id])
+  driverId    String
+  driver      Driver    @relation(fields: [driverId], references: [id])
+  brickTypeId String
+  brickType   BrickType @relation(fields: [brickTypeId], references: [id])
+  chalanNo    String
+  quantity    Int
+  rate        Float
+  amount      Float
+  paid        Float
+  balance     Float
+  createdAt   DateTime  @default(now())
+  
+  @@map("sales")
+}

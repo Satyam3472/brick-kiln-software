@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:14-alpine
+    container_name: brick-kiln-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: brick_kiln_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Database Setup (Migrations & Seed)
+  db-setup:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    container_name: brick-kiln-db-setup
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/brick_kiln_db
+    command: sh -c "npx prisma db push && npx prisma db seed"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Next.js Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: brick-kiln-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/brick_kiln_db
+      JWT_SECRET: brick-kiln-jwt-secret-change-in-production-2024
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      db-setup:
+        condition: service_completed_successfully
+    command: node server.js
+
+volumes:
+  postgres_data:
+    driver: local
