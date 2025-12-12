@@ -1,25 +1,19 @@
-'use client';
+"use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 
-const data = [
-    { name: 'Mon', total: 1200 },
-    { name: 'Tue', total: 2100 },
-    { name: 'Wed', total: 1800 },
-    { name: 'Thu', total: 2400 },
-    { name: 'Fri', total: 1600 },
-    { name: 'Sat', total: 3200 },
-    { name: 'Sun', total: 3500 },
-];
+interface SalesOverviewChartProps {
+    data: { name: string; total: number }[];
+}
 
-export function SalesOverviewChart() {
+export function SalesOverviewChart({ data }: SalesOverviewChartProps) {
     return (
         <Card className="col-span-4 lg:col-span-3 hover:shadow-lg transition-shadow">
             <CardHeader>
                 <CardTitle>Sales Overview</CardTitle>
                 <CardDescription>
-                    Daily revenue for the current week
+                    Daily revenue for the last 7 days
                 </CardDescription>
             </CardHeader>
             <CardContent className="pl-2">

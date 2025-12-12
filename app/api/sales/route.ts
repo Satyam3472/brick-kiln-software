@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import prisma from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/middleware/auth';
 import { z } from 'zod';
-
-const prisma = new PrismaClient();
+import { revalidatePath } from 'next/cache';
 
 const createSaleSchema = z.object({
     date: z.string().transform((str) => new Date(str)),
@@ -121,6 +120,11 @@ export async function POST(request: NextRequest) {
                 balance,
             },
         });
+
+        // Revalidate Dashboard and Sales List
+        revalidatePath('/admin/dashboard');
+        revalidatePath('/dashboard');
+        revalidatePath('/sales');
 
         return NextResponse.json({ success: true, sale }, { status: 201 });
     } catch (error) {
