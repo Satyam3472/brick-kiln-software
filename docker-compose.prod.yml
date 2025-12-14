@@ -8,19 +8,24 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: always
+
+    # FIX: avoid port already allocated error
     ports:
-      - "3000:3000"
+      - "3001:3000"
+
     environment:
       # Production Database Connection String
-      - DATABASE_URL=${DATABASE_URL}
-      
-      # JWT Secret for Auth (Must be secure in prod)
-      - JWT_SECRET=${JWT_SECRET}
-      
-      # App URL (e.g. https://your-domain.com)
-      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
-      
-      - NODE_ENV=production
+      DATABASE_URL: ${DATABASE_URL}
+
+      # JWT Secret for Auth
+      JWT_SECRET: ${JWT_SECRET}
+
+      # App URL
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+
+      NODE_ENV: production
+      PORT: 3000
+
     networks:
       - brick-kiln-network
 
