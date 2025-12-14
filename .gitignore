@@ -38,3 +38,14 @@ next-env.d.ts
 
 # prisma
 prisma/migrations
+
+# documentation
+*.md
+
+# dev configurations
+docker-compose.yml
+.vscode/
+.idea/
+
+# scripts
+scripts/
