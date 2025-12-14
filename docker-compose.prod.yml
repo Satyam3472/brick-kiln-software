@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  app:
+    image: brick-kiln-app:latest
+    container_name: brick-kiln-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      # Production Database Connection String
+      - DATABASE_URL=${DATABASE_URL}
+      
+      # JWT Secret for Auth (Must be secure in prod)
+      - JWT_SECRET=${JWT_SECRET}
+      
+      # App URL (e.g. https://your-domain.com)
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+      
+      - NODE_ENV=production
+    networks:
+      - brick-kiln-network
+
+networks:
+  brick-kiln-network:
+    driver: bridge
