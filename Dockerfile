@@ -44,6 +44,8 @@ COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/package.json ./package.json
 
+RUN npm install prisma@6.19.0 --no-save
+
 RUN chown -R nextjs:nodejs /app
 
 USER nextjs
